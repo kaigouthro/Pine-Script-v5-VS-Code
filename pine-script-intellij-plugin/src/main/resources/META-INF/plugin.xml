@@ -1,0 +1,84 @@
+<idea-plugin>
+    <id>com.pinescript.plugin</id>
+    <name>Pine Script</name>
+    <vendor email="support@pinescript.org" url="https://www.pinescript.org">Pine Script</vendor>
+    
+    <description><![CDATA[
+        <p>Pine Script language support for JetBrains IDEs.</p>
+        <p>Features:</p>
+        <ul>
+            <li>Syntax highlighting for Pine Script files (.pine, .ps, .pinescript)</li>
+            <li>Code completion for built-in functions, variables, and methods</li>
+            <li>Color preview in editor</li>
+            <li>Parameter information and documentation</li>
+        </ul>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.textmate</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- TextMate support -->
+        <TextMateInstaller/>
+        
+        <!-- Register both TextMate bundles -->
+        <textmate.bundle name="pinescript-grammar" path="/textmate/pinescript.tmbundle"/>
+        <textmate.bundle name="pine-script-grammar" path="/highlighting/pine-script.tmbundle"/>
+        
+        <!-- File type factory (legacy but more reliable approach) -->
+        <fileTypeFactory implementation="com.pinescript.plugin.language.PineScriptFileTypeFactory"/>
+        
+        <!-- Register language and file type -->
+        <fileType name="Pine Script"
+                  implementationClass="com.pinescript.plugin.language.PineScriptFileType"
+                  language="Pine Script"
+                  extensions="pine;ps;pinescript"/>
+        
+        <!-- Map TextMate grammar scope to our language -->
+        <textmate.languageMapping mapping="source.pinescript" language="Pine Script"/>
+        
+        <!-- Language parser definition -->
+        <lang.parserDefinition language="Pine Script"
+                               implementationClass="com.pinescript.plugin.language.PineScriptParserDefinition"/>
+        
+        <!-- Associate our custom syntax highlighter with our language -->
+        <lang.syntaxHighlighter language="Pine Script" 
+                               implementationClass="com.pinescript.plugin.editor.PineScriptSyntaxHighlighter"/>
+        
+        <!-- Code completion -->
+        <completion.contributor language="Pine Script" 
+                                implementationClass="com.pinescript.plugin.completion.PineScriptCompletionContributor" 
+                                order="first"/>
+        
+        <!-- Auto-popup completion configuration using CompletionConfidence for better reliability -->
+        <completion.confidence language="Pine Script"
+                             implementationClass="com.pinescript.plugin.completion.PineScriptCompletionTrigger"
+                             order="first" />
+                             
+        <!-- Enable auto-popup for dot, parenthesis, and comma characters -->
+        <completion.autocomplete.charFilter implementation="com.intellij.codeInsight.completion.DefaultCharFilter" 
+                                           order="first" />
+        
+        <!-- Custom typed handler specifically for auto completion (highest priority) -->
+        <typedHandler implementation="com.pinescript.plugin.completion.PineScriptAutoPopupCompletion" 
+                     order="first" id="pineScriptAutoPopup"/>
+        
+        <!-- Color scheme -->
+        <bundledColorScheme path="/schemes/PineScriptScheme.xml"/>
+        
+        <!-- Register file-specific annotation -->
+        <annotator language="Pine Script" 
+                   implementationClass="com.pinescript.plugin.annotator.PineScriptAnnotator"/>
+                   
+        <!-- Commenter for comments handling -->
+        <lang.commenter language="Pine Script"
+                       implementationClass="com.pinescript.plugin.editor.PineScriptCommenter"/>
+    </extensions>
+    
+    <actions>
+        <action id="PineScript.NewFile" class="com.pinescript.plugin.actions.NewPineScriptFileAction" 
+                text="Pine Script File" description="Create new Pine Script file">
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
+        </action>
+    </actions>
+</idea-plugin> 
